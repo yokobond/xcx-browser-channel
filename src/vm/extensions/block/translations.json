@@ -1,0 +1,14 @@
+{
+  "en": {
+    "xcxBrowserChannel.name": "Browser Channel",
+    "xcxBrowserChannel.doIt": "do it [SCRIPT]"
+  },
+  "ja": {
+    "xcxBrowserChannel.name": "Browser Channel",
+    "xcxBrowserChannel.doIt": "[SCRIPT] を実行する"
+  },
+  "ja-Hira": {
+    "xcxBrowserChannel.name": "Browser Channel",
+    "xcxBrowserChannel.doIt": "[SCRIPT] をじっこうする"
+  }
+}
