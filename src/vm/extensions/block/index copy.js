@@ -4,7 +4,8 @@ import Cast from '../../util/cast';
 import log from '../../util/log';
 import translations from './translations.json';
 import blockIcon from './block-icon.png';
-import {BrowserChannelSession} from './browser-channel-session';
+
+import {BrowserChannelSession} from './channel-connection';
 
 /**
  * Formatter which is used for translation.
@@ -27,14 +28,14 @@ const setupTranslations = () => {
     }
 };
 
-const EXTENSION_ID = 'xcxBrowserChannel';
+const EXTENSION_ID = 'xcxDataSync';
 
 /**
  * URL to get this extension as a module.
  * When it was loaded as a module, 'extensionURL' will be replaced a URL which is retrieved from.
  * @type {string}
  */
-let extensionURL = 'https://yokobond.github.io/xcx-browser-channel/dist/xcxBrowserChannel.mjs';
+let extensionURL = 'https://yokobond.github.io/xcx-data-sync/dist/xcxDataSync.mjs';
 
 /**
  * Scratch 3.0 blocks for example of Xcratch.
@@ -54,8 +55,8 @@ class ExtensionBlocks {
      */
     static get EXTENSION_NAME () {
         return formatMessage({
-            id: 'xcxBrowserChannel.name',
-            default: 'Browser Channel',
+            id: 'xcxDataSync.name',
+            default: 'Data Sync',
             description: 'name of the extension'
         });
     }
@@ -85,7 +86,7 @@ class ExtensionBlocks {
     }
 
     /**
-     * Construct a set of blocks for Browser Channel.
+     * Construct a set of blocks for Data Sync.
      * @param {Runtime} runtime - the Scratch 3.0 runtime.
      */
     constructor (runtime) {
@@ -102,9 +103,9 @@ class ExtensionBlocks {
 
         /**
          * The connection to the sync server
-         * @type {?BrowserChannelSession}
+         * @type {BrowserChannelSession}
          */
-        this.channelSession = null;
+        this.syncConnection = new BrowserChannelSession();
     }
 
     /**
@@ -120,56 +121,73 @@ class ExtensionBlocks {
             showStatusButton: false,
             blocks: [
                 {
-                    opcode: 'joinChannel',
+                    opcode: 'connect',
+                    blockType: BlockType.COMMAND,
+                    text: formatMessage({
+                        id: 'xcxDataSync.connect',
+                        default: 'connect to [URL]'
+                    }),
+                    func: 'connect',
+                    arguments: {
+                        URL: {
+                            type: ArgumentType.STRING,
+                            defaultValue: formatMessage({
+                                id: 'xcxDataSync.connect.defaultURL',
+                                default: 'ws://localhost:8080'
+                            })
+                        }
+                    }
+                },
+                {
+                    opcode: 'server',
+                    blockType: BlockType.REPORTER,
+                    disableMonitor: true,
+                    text: formatMessage({
+                        id: 'xcxDataSync.server',
+                        default: 'server'
+                    }),
+                    func: 'server',
+                    arguments: {}
+                },
+                {
+                    opcode: 'setChannel',
                     blockType: BlockType.COMMAND,
                     blockAllThreads: false,
                     text: formatMessage({
-                        id: 'xcxBrowserChannel.joinChannel',
-                        default: 'join channel [CHANNEL]'
+                        id: 'xcxDataSync.setChannel',
+                        default: 'set channel to [CHANNEL]'
                     }),
-                    func: 'joinChannel',
+                    func: 'setChannel',
                     arguments: {
                         CHANNEL: {
                             type: ArgumentType.STRING,
                             defaultValue: formatMessage({
-                                id: 'xcxBrowserChannel.joinChannel.defaultChannel',
+                                id: 'xcxDataSync.setChannel.defaultChannel',
                                 default: ' '
                             })
                         }
                     }
                 },
                 {
-                    opcode: 'getChannelName',
+                    opcode: 'channel',
                     blockType: BlockType.REPORTER,
                     disableMonitor: true,
                     text: formatMessage({
-                        id: 'xcxBrowserChannel.getChannelName',
+                        id: 'xcxDataSync.channel',
                         default: formatMessage({
-                            id: 'xcxBrowserChannel.getChannelName',
-                            default: 'channel name'
+                            id: 'xcxDataSync.channel',
+                            default: 'channel'
                         })
                     }),
-                    func: 'getChannelName',
+                    func: 'channel',
                     arguments: {}
                 },
-                {
-                    opcode: 'leaveChannel',
-                    blockType: BlockType.COMMAND,
-                    blockAllThreads: false,
-                    text: formatMessage({
-                        id: 'xcxBrowserChannel.leaveChannel',
-                        default: 'leave channel'
-                    }),
-                    func: 'leaveChannel',
-                    arguments: {}
-                },
-                '---',
                 {
                     opcode: 'valueOf',
                     blockType: BlockType.REPORTER,
                     blockAllThreads: false,
                     text: formatMessage({
-                        id: 'xcxBrowserChannel.valueOf',
+                        id: 'xcxDataSync.valueOf',
                         default: 'value of [KEY]'
                     }),
                     func: 'valueOf',
@@ -177,7 +195,7 @@ class ExtensionBlocks {
                         KEY: {
                             type: ArgumentType.STRING,
                             defaultValue: formatMessage({
-                                id: 'xcxBrowserChannel.valueOf.defaultKey',
+                                id: 'xcxDataSync.valueOf.defaultKey',
                                 default: 'key'
                             })
                         }
@@ -188,7 +206,7 @@ class ExtensionBlocks {
                     blockType: BlockType.COMMAND,
                     blockAllThreads: false,
                     text: formatMessage({
-                        id: 'xcxBrowserChannel.setValue',
+                        id: 'xcxDataSync.setValue',
                         default: 'set value of [KEY] to [VALUE]',
                         description: 'set value of the key'
                     }),
@@ -197,14 +215,14 @@ class ExtensionBlocks {
                         KEY: {
                             type: ArgumentType.STRING,
                             defaultValue: formatMessage({
-                                id: 'xcxBrowserChannel.setValue.defaultKey',
+                                id: 'xcxDataSync.setValue.defaultKey',
                                 default: 'key'
                             })
                         },
                         VALUE: {
                             type: ArgumentType.STRING,
                             defaultValue: formatMessage({
-                                id: 'xcxBrowserChannel.setValue.defaultValue',
+                                id: 'xcxDataSync.setValue.defaultValue',
                                 default: 'value'
                             })
                         }
@@ -216,45 +234,30 @@ class ExtensionBlocks {
         };
     }
 
-    /**
-     * Join the channel.
-     * @param {object} args - arguments for the block.
-     * @param {string} args.CHANNEL - the channel name.
-     * @return {string} - the result of joining the channel.
-     */
-    joinChannel (args) {
-        const channel = Cast.toString(args.CHANNEL).trim();
-        if (this.channelSession && (this.channelSession.channelName === channel)) {
-            // Already joined.
-            return 'already joined';
+    connect (args) {
+        const serverURL = Cast.toString(args.URL);
+        this.disconnect();
+        try {
+            return this.syncConnection.connect(serverURL)
+                .then(connection => {
+                    if (connection) {
+                        connection.addListener(this.onMessage);
+                        log.debug(`connected: ${serverURL}`);
+                    } else {
+                        log.error(`connect failed: ${serverURL}`);
+                    }
+                })
+                .catch(err => {
+                    log.error(err);
+                });
+        } catch (err) {
+            log.error(err);
+            return err.message;
         }
-        if (this.channelSession) {
-            this.leaveChannel();
-        }
-        this.channelSession = new BrowserChannelSession(channel);
-        return `${channel} joined`;
     }
 
-    /**
-     * Leave the current channel.
-     * @return {string} - the result of leaving the channel.
-     */
-    leaveChannel () {
-        if (!this.channelSession) {
-            return 'no channel joined';
-        }
-        const channelName = this.channelSession.channelName;
-        this.channelSession.close();
-        this.channelSession = null;
-        return `left from ${channelName}`;
-    }
-
-    /**
-     * Return the channel name.
-     * @return {string} - the channel name.
-     */
-    getChannelName () {
-        return this.channelSession ? this.channelSession.channelName : 'no channel joined';
+    disconnect () {
+        this.syncConnection.disconnect();
     }
 
     /**
@@ -265,29 +268,15 @@ class ExtensionBlocks {
      */
     valueOf (args) {
         const key = Cast.toString(args.KEY);
-        if (!this.channelSession) {
-            return '';
-        }
-        const value = this.channelSession.getValue(key);
+        const value = this.syncConnection.getValue(key);
         return value ? value : '';
     }
 
-    /**
-     * Set the value of the key.
-     * @param {object} args - arguments for the block.
-     * @param {string} args.KEY - the key.
-     * @param {string} args.VALUE - the value.
-     * @return {string} - the result of setting the value.
-     */
     setValue (args) {
         const key = Cast.toString(args.KEY);
         const value = Cast.toString(args.VALUE);
         log.debug(`setValue: ${key} = ${value}`);
-        if (!this.channelSession) {
-            return 'no channel joined';
-        }
-        this.channelSession.setValue(key, value);
-        return `${key} = ${value}`;
+        this.syncConnection.setValue(key, value);
     }
 }
 

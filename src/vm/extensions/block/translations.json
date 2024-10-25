@@ -1,14 +1,38 @@
 {
   "en": {
     "xcxBrowserChannel.name": "Browser Channel",
-    "xcxBrowserChannel.doIt": "do it [SCRIPT]"
+    "xcxBrowserChannel.joinChannel": "join channel [CHANNEL]",
+    "xcxBrowserChannel.joinChannel.defaultChannel": " ",
+    "xcxBrowserChannel.getChannelName": "channel name",
+    "xcxBrowserChannel.leaveChannel": "leave channel",
+    "xcxBrowserChannel.valueOf": "value of [KEY]",
+    "xcxBrowserChannel.valueOf.defaultKey": "key",
+    "xcxBrowserChannel.setValue": "set value of [KEY] to [VALUE]",
+    "xcxBrowserChannel.setValue.defaultKey": "key",
+    "xcxBrowserChannel.setValue.defaultValue": "value"
   },
   "ja": {
     "xcxBrowserChannel.name": "Browser Channel",
-    "xcxBrowserChannel.doIt": "[SCRIPT] を実行する"
+    "xcxBrowserChannel.joinChannel": "[CHANNEL] チャンネルに参加する",
+    "xcxBrowserChannel.joinChannel.defaultChannel": " ",
+    "xcxBrowserChannel.getChannelName": "チャンネル名",
+    "xcxBrowserChannel.leaveChannel": "チャンネルから抜ける",
+    "xcxBrowserChannel.valueOf": "[KEY] の値",
+    "xcxBrowserChannel.valueOf.defaultKey": "キー",
+    "xcxBrowserChannel.setValue": "[KEY] の値を [VALUE] に設定する",
+    "xcxBrowserChannel.setValue.defaultKey": "キー",
+    "xcxBrowserChannel.setValue.defaultValue": "値"
   },
   "ja-Hira": {
-    "xcxBrowserChannel.name": "Browser Channel",
-    "xcxBrowserChannel.doIt": "[SCRIPT] をじっこうする"
+    "xcxBrowserChannel.name": "ブラウザー チャンネル",
+    "xcxBrowserChannel.joinChannel": "[CHANNEL] チャンネル に さんか する",
+    "xcxBrowserChannel.joinChannel.defaultChannel": " ",
+    "xcxBrowserChannel.getChannelName": "チャンネルめい",
+    "xcxBrowserChannel.leaveChannel": "チャンネル から ぬける",
+    "xcxBrowserChannel.valueOf": "[KEY] の あたい",
+    "xcxBrowserChannel.valueOf.defaultKey": "キー",
+    "xcxBrowserChannel.setValue": "[KEY] の あたいを [VALUE] に せってい する",
+    "xcxBrowserChannel.setValue.defaultKey": "キー",
+    "xcxBrowserChannel.setValue.defaultValue": "あたい"
   }
 }
