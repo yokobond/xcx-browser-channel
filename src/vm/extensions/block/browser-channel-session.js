@@ -18,12 +18,6 @@ export class BrowserChannelSession {
         this.channel = new BroadcastChannel(channelName);
 
         /**
-         * messages received
-         * @type {Array}
-         */
-        this.messages = [];
-
-        /**
          * key and values received
          * @type {object}
          */
@@ -61,7 +55,6 @@ export class BrowserChannelSession {
     onMessage (data) {
         try {
             const message = data;
-            this.messages.push(message);
             this.values[message.key] = message.value;
             switch (message.type) {
             case 'SET_VALUE':
