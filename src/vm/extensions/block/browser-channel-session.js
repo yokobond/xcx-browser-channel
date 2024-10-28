@@ -24,10 +24,16 @@ export class BrowserChannelSession {
         this.values = {};
 
         /**
-         * listeners for receiving messages
-         * @type {Array}
+         * listeners for broadcast events
+         * @type {Array<function>}
          */
-        this.listeners = [];
+        this.broadcastEventListeners = [];
+
+        /**
+         * last event received
+         * @type {object}
+         */
+        this.lastEvent = null;
 
         this.channel.addEventListener('message', event => {
             this.onMessage(event.data);
@@ -55,10 +61,13 @@ export class BrowserChannelSession {
     onMessage (data) {
         try {
             const message = data;
-            this.values[message.key] = message.value;
             switch (message.type) {
             case 'SET_VALUE':
-                this.notifyListeners(message);
+                this.values[message.key] = message.value;
+                break;
+            case 'EVENT':
+                this.lastEvent = message.data;
+                this.notifyBroadcastEventListeners(this.lastEvent);
                 break;
             default:
                 console.error(`Unknown message type:${message.type}`);
@@ -78,28 +87,28 @@ export class BrowserChannelSession {
     }
 
     /**
-     * Adds a listener for receiving messages
+     * Adds a listener for broadcast events
      * @param {function} listener - The listener
      */
-    addListener (listener) {
-        this.listeners.push(listener);
+    addBroadcastEventListener (listener) {
+        this.broadcastEventListeners.push(listener);
     }
 
     /**
-     * Removes a listener for receiving messages
+     * Removes a listener for broadcast events
      * @param {function} listener - The listener
      */
-    removeListener (listener) {
-        this.listeners = this.listeners.filter(l => l !== listener);
+    removeBroadcastEventListener (listener) {
+        this.broadcastEventListeners = this.broadcastEventListeners.filter(l => l !== listener);
     }
 
     /**
-     * Notifies all listeners of a message
-     * @param {object} message - The message
+     * Notifies all the listeners for broadcast events
+     * @param {object} event - The event
      */
-    notifyListeners (message) {
-        this.listeners.forEach(listener => {
-            listener(message);
+    notifyBroadcastEventListeners (event) {
+        this.broadcastEventListeners.forEach(listener => {
+            listener(event);
         });
     }
 
@@ -128,5 +137,26 @@ export class BrowserChannelSession {
      */
     getValue (key) {
         return this.values[key];
+    }
+
+    /**
+     * Broadcast an event that will be received by all the listeners
+     * @param {string} type - The event type
+     * @param {object} data - The event data
+     * @returns {void}
+     */
+    broadcastEvent (type, data) {
+        const message = {
+            type: 'EVENT',
+            data: {
+                type: type,
+                data: data
+            }
+        };
+        if (!this.channel) {
+            return;
+        }
+        this.channel.postMessage(message);
+        this.onMessage(message);
     }
 }

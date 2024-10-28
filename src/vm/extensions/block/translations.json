@@ -9,7 +9,13 @@
     "xcxBrowserChannel.valueOf.defaultKey": "key",
     "xcxBrowserChannel.setValue": "set value of [KEY] to [VALUE]",
     "xcxBrowserChannel.setValue.defaultKey": "key",
-    "xcxBrowserChannel.setValue.defaultValue": "value"
+    "xcxBrowserChannel.setValue.defaultValue": "value",
+    "xcxBrowserChannel.sendEvent": "broadcast event [TYPE] with [DATA]",
+		"xcxBrowserChannel.sendEvent.defaultEvent": "type",
+		"xcxBrowserChannel.sendEvent.defaultData": "data",
+		"xcxBrowserChannel.whenEventReceived": "when event received",
+		"xcxBrowserChannel.lastEventType": "event type",
+		"xcxBrowserChannel.lastEventData": "event data"
   },
   "ja": {
     "xcxBrowserChannel.name": "Browser Channel",
@@ -21,7 +27,13 @@
     "xcxBrowserChannel.valueOf.defaultKey": "キー",
     "xcxBrowserChannel.setValue": "[KEY] の値を [VALUE] に設定する",
     "xcxBrowserChannel.setValue.defaultKey": "キー",
-    "xcxBrowserChannel.setValue.defaultValue": "値"
+    "xcxBrowserChannel.setValue.defaultValue": "値",
+		"xcxBrowserChannel.sendEvent": "[TYPE] イベントを [DATA] と共に送る",
+		"xcxBrowserChannel.sendEvent.defaultEvent": "タイプ",
+		"xcxBrowserChannel.sendEvent.defaultData": "データ",
+		"xcxBrowserChannel.whenEventReceived": "イベントを受け取ったとき",
+		"xcxBrowserChannel.lastEventType": "イベント タイプ",
+		"xcxBrowserChannel.lastEventData": "イベント データ"
   },
   "ja-Hira": {
     "xcxBrowserChannel.name": "ブラウザー チャンネル",
@@ -31,8 +43,14 @@
     "xcxBrowserChannel.leaveChannel": "チャンネル から ぬける",
     "xcxBrowserChannel.valueOf": "[KEY] の あたい",
     "xcxBrowserChannel.valueOf.defaultKey": "キー",
-    "xcxBrowserChannel.setValue": "[KEY] の あたいを [VALUE] に せってい する",
+    "xcxBrowserChannel.setValue": "[KEY] の あたい を [VALUE] に せってい する",
     "xcxBrowserChannel.setValue.defaultKey": "キー",
-    "xcxBrowserChannel.setValue.defaultValue": "あたい"
+    "xcxBrowserChannel.setValue.defaultValue": "あたい",
+		"xcxBrowserChannel.sendEvent": "[TYPE] イベント を [DATA] と ともに おくる",
+		"xcxBrowserChannel.sendEvent.defaultEvent": "タイプ",
+		"xcxBrowserChannel.sendEvent.defaultData": "データ",
+		"xcxBrowserChannel.whenEventReceived": "イベント を うけとった とき",
+		"xcxBrowserChannel.lastEventType": "イベント タイプ",
+		"xcxBrowserChannel.lastEventData": "イベント データ"
   }
 }

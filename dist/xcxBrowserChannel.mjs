@@ -1274,7 +1274,13 @@ var en = {
 	"xcxBrowserChannel.valueOf.defaultKey": "key",
 	"xcxBrowserChannel.setValue": "set value of [KEY] to [VALUE]",
 	"xcxBrowserChannel.setValue.defaultKey": "key",
-	"xcxBrowserChannel.setValue.defaultValue": "value"
+	"xcxBrowserChannel.setValue.defaultValue": "value",
+	"xcxBrowserChannel.sendEvent": "broadcast event [TYPE] with [DATA]",
+	"xcxBrowserChannel.sendEvent.defaultEvent": "type",
+	"xcxBrowserChannel.sendEvent.defaultData": "data",
+	"xcxBrowserChannel.whenEventReceived": "when event received",
+	"xcxBrowserChannel.lastEventType": "event type",
+	"xcxBrowserChannel.lastEventData": "event data"
 };
 var ja = {
 	"xcxBrowserChannel.name": "Browser Channel",
@@ -1286,7 +1292,13 @@ var ja = {
 	"xcxBrowserChannel.valueOf.defaultKey": "キー",
 	"xcxBrowserChannel.setValue": "[KEY] の値を [VALUE] に設定する",
 	"xcxBrowserChannel.setValue.defaultKey": "キー",
-	"xcxBrowserChannel.setValue.defaultValue": "値"
+	"xcxBrowserChannel.setValue.defaultValue": "値",
+	"xcxBrowserChannel.sendEvent": "[TYPE] イベントを [DATA] と共に送る",
+	"xcxBrowserChannel.sendEvent.defaultEvent": "タイプ",
+	"xcxBrowserChannel.sendEvent.defaultData": "データ",
+	"xcxBrowserChannel.whenEventReceived": "イベントを受け取ったとき",
+	"xcxBrowserChannel.lastEventType": "イベント タイプ",
+	"xcxBrowserChannel.lastEventData": "イベント データ"
 };
 var translations = {
 	en: en,
@@ -1299,9 +1311,15 @@ var translations = {
 	"xcxBrowserChannel.leaveChannel": "チャンネル から ぬける",
 	"xcxBrowserChannel.valueOf": "[KEY] の あたい",
 	"xcxBrowserChannel.valueOf.defaultKey": "キー",
-	"xcxBrowserChannel.setValue": "[KEY] の あたいを [VALUE] に せってい する",
+	"xcxBrowserChannel.setValue": "[KEY] の あたい を [VALUE] に せってい する",
 	"xcxBrowserChannel.setValue.defaultKey": "キー",
-	"xcxBrowserChannel.setValue.defaultValue": "あたい"
+	"xcxBrowserChannel.setValue.defaultValue": "あたい",
+	"xcxBrowserChannel.sendEvent": "[TYPE] イベント を [DATA] と ともに おくる",
+	"xcxBrowserChannel.sendEvent.defaultEvent": "タイプ",
+	"xcxBrowserChannel.sendEvent.defaultData": "データ",
+	"xcxBrowserChannel.whenEventReceived": "イベント を うけとった とき",
+	"xcxBrowserChannel.lastEventType": "イベント タイプ",
+	"xcxBrowserChannel.lastEventData": "イベント データ"
 }
 };
 
@@ -1328,22 +1346,22 @@ var BrowserChannelSession = /*#__PURE__*/function () {
     this.channel = new BroadcastChannel(channelName);
 
     /**
-     * messages received
-     * @type {Array}
-     */
-    this.messages = [];
-
-    /**
      * key and values received
      * @type {object}
      */
     this.values = {};
 
     /**
-     * listeners for receiving messages
-     * @type {Array}
+     * listeners for broadcast events
+     * @type {Array<function>}
      */
-    this.listeners = [];
+    this.broadcastEventListeners = [];
+
+    /**
+     * last event received
+     * @type {object}
+     */
+    this.lastEvent = null;
     this.channel.addEventListener('message', function (event) {
       _this.onMessage(event.data);
     });
@@ -1374,11 +1392,13 @@ var BrowserChannelSession = /*#__PURE__*/function () {
     value: function onMessage(data) {
       try {
         var message = data;
-        this.messages.push(message);
-        this.values[message.key] = message.value;
         switch (message.type) {
           case 'SET_VALUE':
-            this.notifyListeners(message);
+            this.values[message.key] = message.value;
+            break;
+          case 'EVENT':
+            this.lastEvent = message.data;
+            this.notifyBroadcastEventListeners(this.lastEvent);
             break;
           default:
             console.error("Unknown message type:".concat(message.type));
@@ -1400,36 +1420,36 @@ var BrowserChannelSession = /*#__PURE__*/function () {
     }
 
     /**
-     * Adds a listener for receiving messages
+     * Adds a listener for broadcast events
      * @param {function} listener - The listener
      */
   }, {
-    key: "addListener",
-    value: function addListener(listener) {
-      this.listeners.push(listener);
+    key: "addBroadcastEventListener",
+    value: function addBroadcastEventListener(listener) {
+      this.broadcastEventListeners.push(listener);
     }
 
     /**
-     * Removes a listener for receiving messages
+     * Removes a listener for broadcast events
      * @param {function} listener - The listener
      */
   }, {
-    key: "removeListener",
-    value: function removeListener(listener) {
-      this.listeners = this.listeners.filter(function (l) {
+    key: "removeBroadcastEventListener",
+    value: function removeBroadcastEventListener(listener) {
+      this.broadcastEventListeners = this.broadcastEventListeners.filter(function (l) {
         return l !== listener;
       });
     }
 
     /**
-     * Notifies all listeners of a message
-     * @param {object} message - The message
+     * Notifies all the listeners for broadcast events
+     * @param {object} event - The event
      */
   }, {
-    key: "notifyListeners",
-    value: function notifyListeners(message) {
-      this.listeners.forEach(function (listener) {
-        listener(message);
+    key: "notifyBroadcastEventListeners",
+    value: function notifyBroadcastEventListeners(event) {
+      this.broadcastEventListeners.forEach(function (listener) {
+        listener(event);
       });
     }
 
@@ -1462,6 +1482,29 @@ var BrowserChannelSession = /*#__PURE__*/function () {
     key: "getValue",
     value: function getValue(key) {
       return this.values[key];
+    }
+
+    /**
+     * Broadcast an event that will be received by all the listeners
+     * @param {string} type - The event type
+     * @param {object} data - The event data
+     * @returns {void}
+     */
+  }, {
+    key: "broadcastEvent",
+    value: function broadcastEvent(type, data) {
+      var message = {
+        type: 'EVENT',
+        data: {
+          type: type,
+          data: data
+        }
+      };
+      if (!this.channel) {
+        return;
+      }
+      this.channel.postMessage(message);
+      this.onMessage(message);
     }
   }]);
 }();
@@ -1619,6 +1662,55 @@ var ExtensionBlocks = /*#__PURE__*/function () {
               })
             }
           }
+        }, {
+          opcode: 'sendEvent',
+          blockType: BlockType$1.COMMAND,
+          text: formatMessage({
+            id: 'xcxBrowserChannel.sendEvent',
+            default: 'send event [TYPE] with value [DATA]'
+          }),
+          arguments: {
+            TYPE: {
+              type: ArgumentType$1.STRING,
+              defaultValue: formatMessage({
+                id: 'xcxBrowserChannel.sendEvent.defaultEvent',
+                default: 'event'
+              })
+            },
+            DATA: {
+              type: ArgumentType$1.STRING,
+              defaultValue: formatMessage({
+                id: 'xcxBrowserChannel.sendEvent.defaultData',
+                default: 'data'
+              })
+            }
+          }
+        }, {
+          opcode: 'whenEventReceived',
+          blockType: BlockType$1.EVENT,
+          text: formatMessage({
+            id: 'xcxBrowserChannel.whenEventReceived',
+            default: 'when event received'
+          }),
+          isEdgeActivated: false,
+          shouldRestartExistingThreads: false
+        }, {
+          opcode: 'lastEventType',
+          blockType: BlockType$1.REPORTER,
+          disableMonitor: true,
+          text: formatMessage({
+            id: 'xcxBrowserChannel.lastEventType',
+            default: 'event'
+          })
+        }, {
+          opcode: 'lastEventData',
+          blockType: BlockType$1.REPORTER,
+          disableMonitor: true,
+          text: formatMessage({
+            id: 'xcxBrowserChannel.lastEventData',
+            default: 'data of event'
+          }),
+          arguments: {}
         }],
         menus: {}
       };
@@ -1642,6 +1734,7 @@ var ExtensionBlocks = /*#__PURE__*/function () {
         this.leaveChannel();
       }
       this.channelSession = new BrowserChannelSession(channel);
+      this.channelSession.addBroadcastEventListener(this.onEvent.bind(this));
       return "".concat(channel, " joined");
     }
 
@@ -1706,6 +1799,65 @@ var ExtensionBlocks = /*#__PURE__*/function () {
       }
       this.channelSession.setValue(key, value);
       return "".concat(key, " = ").concat(value);
+    }
+
+    /**
+     * Handle the event.
+     * @param {object} event - the event.
+     */
+  }, {
+    key: "onEvent",
+    value: function onEvent() {
+      this.runtime.startHats('xcxBrowserChannel_whenEventReceived');
+    }
+
+    /**
+     * Return the last event type.
+     * @return {string} - the last event type.
+     */
+  }, {
+    key: "lastEventType",
+    value: function lastEventType() {
+      if (!this.channelSession) {
+        return '';
+      }
+      var event = this.channelSession.lastEvent;
+      return event ? event.type : '';
+    }
+
+    /**
+     * Return the last event data.
+     * @return {string} - the last event data.
+     */
+  }, {
+    key: "lastEventData",
+    value: function lastEventData() {
+      var event = this.channelSession ? this.channelSession.lastEvent : null;
+      if (!event) {
+        return '';
+      }
+      var data = event.data;
+      return data ? data : '';
+    }
+
+    /**
+     * Send the event.
+     * @param {object} args - arguments for the block.
+     * @param {string} args.TYPE - the event type.
+     * @param {string} args.DATA - the event data.
+     * @return {Promise<string>} - resolve with the result of sending the event.
+     */
+  }, {
+    key: "sendEvent",
+    value: function sendEvent(args) {
+      var type = Cast$1.toString(args.TYPE).trim();
+      var data = Cast$1.toString(args.DATA);
+      if (!this.channelSession) {
+        return Promise.resolve('no channel joined');
+      }
+      this.channelSession.broadcastEvent(type, data);
+      // resolve after a delay for the broadcast event to be received.
+      return Promise.resolve("sent event: ".concat(type, " data: ").concat(data));
     }
   }], [{
     key: "formatMessage",

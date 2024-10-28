@@ -209,6 +209,60 @@ class ExtensionBlocks {
                             })
                         }
                     }
+                },
+                {
+                    opcode: 'sendEvent',
+                    blockType: BlockType.COMMAND,
+                    text: formatMessage({
+                        id: 'xcxBrowserChannel.sendEvent',
+                        default: 'send event [TYPE] with value [DATA]'
+                    }),
+                    arguments: {
+                        TYPE: {
+                            type: ArgumentType.STRING,
+                            defaultValue: formatMessage({
+                                id: 'xcxBrowserChannel.sendEvent.defaultEvent',
+                                default: 'event'
+                            })
+                        },
+                        DATA: {
+                            type: ArgumentType.STRING,
+                            defaultValue: formatMessage({
+                                id: 'xcxBrowserChannel.sendEvent.defaultData',
+                                default: 'data'
+                            })
+                        }
+                    }
+                },
+                {
+                    opcode: 'whenEventReceived',
+                    blockType: BlockType.EVENT,
+                    text: formatMessage({
+                        id: 'xcxBrowserChannel.whenEventReceived',
+                        default: 'when event received'
+                    }),
+                    isEdgeActivated: false,
+                    shouldRestartExistingThreads: false
+                },
+                {
+                    opcode: 'lastEventType',
+                    blockType: BlockType.REPORTER,
+                    disableMonitor: true,
+                    text: formatMessage({
+                        id: 'xcxBrowserChannel.lastEventType',
+                        default: 'event'
+                    })
+                },
+                {
+                    opcode: 'lastEventData',
+                    blockType: BlockType.REPORTER,
+                    disableMonitor: true,
+                    text: formatMessage({
+                        id: 'xcxBrowserChannel.lastEventData',
+                        default: 'data of event'
+                    }),
+                    arguments: {
+                    }
                 }
             ],
             menus: {
@@ -232,6 +286,7 @@ class ExtensionBlocks {
             this.leaveChannel();
         }
         this.channelSession = new BrowserChannelSession(channel);
+        this.channelSession.addBroadcastEventListener(this.onEvent.bind(this));
         return `${channel} joined`;
     }
 
@@ -288,6 +343,57 @@ class ExtensionBlocks {
         }
         this.channelSession.setValue(key, value);
         return `${key} = ${value}`;
+    }
+
+    /**
+     * Handle the event.
+     * @param {object} event - the event.
+     */
+    onEvent () {
+        this.runtime.startHats('xcxBrowserChannel_whenEventReceived');
+    }
+
+    /**
+     * Return the last event type.
+     * @return {string} - the last event type.
+     */
+    lastEventType () {
+        if (!this.channelSession) {
+            return '';
+        }
+        const event = this.channelSession.lastEvent;
+        return event ? event.type : '';
+    }
+
+    /**
+     * Return the last event data.
+     * @return {string} - the last event data.
+     */
+    lastEventData () {
+        const event = this.channelSession ? this.channelSession.lastEvent : null;
+        if (!event) {
+            return '';
+        }
+        const data = event.data;
+        return data ? data : '';
+    }
+
+    /**
+     * Send the event.
+     * @param {object} args - arguments for the block.
+     * @param {string} args.TYPE - the event type.
+     * @param {string} args.DATA - the event data.
+     * @return {Promise<string>} - resolve with the result of sending the event.
+     */
+    sendEvent (args) {
+        const type = Cast.toString(args.TYPE).trim();
+        const data = Cast.toString(args.DATA);
+        if (!this.channelSession) {
+            return Promise.resolve('no channel joined');
+        }
+        this.channelSession.broadcastEvent(type, data);
+        // resolve after a delay for the broadcast event to be received.
+        return Promise.resolve(`sent event: ${type} data: ${data}`);
     }
 }
 
