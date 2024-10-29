@@ -1619,24 +1619,6 @@ var ExtensionBlocks = /*#__PURE__*/function () {
           func: 'leaveChannel',
           arguments: {}
         }, '---', {
-          opcode: 'valueOf',
-          blockType: BlockType$1.REPORTER,
-          blockAllThreads: false,
-          text: formatMessage({
-            id: 'xcxBrowserChannel.valueOf',
-            default: 'value of [KEY]'
-          }),
-          func: 'valueOf',
-          arguments: {
-            KEY: {
-              type: ArgumentType$1.STRING,
-              defaultValue: formatMessage({
-                id: 'xcxBrowserChannel.valueOf.defaultKey',
-                default: 'key'
-              })
-            }
-          }
-        }, {
           opcode: 'setValue',
           blockType: BlockType$1.COMMAND,
           blockAllThreads: false,
@@ -1663,6 +1645,24 @@ var ExtensionBlocks = /*#__PURE__*/function () {
             }
           }
         }, {
+          opcode: 'valueOf',
+          blockType: BlockType$1.REPORTER,
+          blockAllThreads: false,
+          text: formatMessage({
+            id: 'xcxBrowserChannel.valueOf',
+            default: 'value of [KEY]'
+          }),
+          func: 'valueOf',
+          arguments: {
+            KEY: {
+              type: ArgumentType$1.STRING,
+              defaultValue: formatMessage({
+                id: 'xcxBrowserChannel.valueOf.defaultKey',
+                default: 'key'
+              })
+            }
+          }
+        }, '---', {
           opcode: 'sendEvent',
           blockType: BlockType$1.COMMAND,
           text: formatMessage({

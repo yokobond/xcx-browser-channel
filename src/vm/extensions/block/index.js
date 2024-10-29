@@ -165,25 +165,6 @@ class ExtensionBlocks {
                 },
                 '---',
                 {
-                    opcode: 'valueOf',
-                    blockType: BlockType.REPORTER,
-                    blockAllThreads: false,
-                    text: formatMessage({
-                        id: 'xcxBrowserChannel.valueOf',
-                        default: 'value of [KEY]'
-                    }),
-                    func: 'valueOf',
-                    arguments: {
-                        KEY: {
-                            type: ArgumentType.STRING,
-                            defaultValue: formatMessage({
-                                id: 'xcxBrowserChannel.valueOf.defaultKey',
-                                default: 'key'
-                            })
-                        }
-                    }
-                },
-                {
                     opcode: 'setValue',
                     blockType: BlockType.COMMAND,
                     blockAllThreads: false,
@@ -210,6 +191,26 @@ class ExtensionBlocks {
                         }
                     }
                 },
+                {
+                    opcode: 'valueOf',
+                    blockType: BlockType.REPORTER,
+                    blockAllThreads: false,
+                    text: formatMessage({
+                        id: 'xcxBrowserChannel.valueOf',
+                        default: 'value of [KEY]'
+                    }),
+                    func: 'valueOf',
+                    arguments: {
+                        KEY: {
+                            type: ArgumentType.STRING,
+                            defaultValue: formatMessage({
+                                id: 'xcxBrowserChannel.valueOf.defaultKey',
+                                default: 'key'
+                            })
+                        }
+                    }
+                },
+                '---',
                 {
                     opcode: 'sendEvent',
                     blockType: BlockType.COMMAND,
