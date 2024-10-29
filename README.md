@@ -1,13 +1,49 @@
-# Browser Channel
-An example extension for [Xcratch](https://xcratch.github.io/)
-
-This extension add extra-block "do it", that executes string in its input field as a sentence in Javascript and return the result.
+# Xcratch Browser Channel Extension
+This extension allows [Xcratch](https://xcratch.github.io/) projects to communicate with each other over a browser-based channel.  It utilizes `BroadcastChannel` for secure and efficient cross-project communication.
 
 
 ## ✨ What You Can Do With This Extension
 
 Play [Example Project](https://xcratch.github.io/editor/#https://yokobond.github.io/xcx-browser-channel/projects/example.sb3) to look at what you can do with "Browser Channel" extension. 
 <iframe src="https://xcratch.github.io/editor/player#https://yokobond.github.io/xcx-browser-channel/projects/example.sb3" width="540px" height="460px"></iframe>
+
+## Block Functionality Overview:
+
+This extension facilitates communication by allowing scripts to:
+
+* **Join and leave channels:** Projects connect and disconnect from shared channels.
+* **Share data:** Projects can set and retrieve values for keys in a common, shared data space on the channel.
+* **Broadcast events:** Projects can send events to other projects on the channel.
+* **Handle received events:** Projects can listen and respond to events sent by other projects on the channel.
+
+## Block Categories:
+
+The extension's blocks are grouped into logical categories, outlined below:
+
+
+**1. Channel Management:**
+
+* **`join channel [CHANNEL]` (opcode: `joinChannel`):**  Joins an existing browser channel.  The `[CHANNEL]` input specifies the name of the channel.  If already joined, this block will return "already joined".  If already joined to another channel, the current channel will be left.
+* **`leave channel` (opcode: `leaveChannel`):** Disconnects from the current channel.  Returns a message indicating the channel left or if no channel is joined.
+* **`channel name` (opcode: `getChannelName`):** Returns the name of the currently joined channel. If no channel is joined, it returns "no channel joined".
+
+
+**2. Data Access:**
+
+* **`value of [KEY]` (opcode: `valueOf`):** Retrieves the value associated with the specified `[KEY]` from the shared channel data. Returns an empty string if no channel is joined or the key doesn't exist.
+* **`set value of [KEY] to [VALUE]` (opcode: `setValue`):** Updates the shared channel data by associating the `[KEY]` with the `[VALUE]`.  Returns the key-value pair that was set.
+
+
+**3. Event Handling:**
+
+* **`send event [TYPE] with value [DATA]` (opcode: `sendEvent`):** Broadcasts an event of the specified `[TYPE]` with optional `[DATA]` to all projects connected to the same channel. The `[TYPE]` and `[DATA]` are strings.  Returns a confirmation message including the sent type and data.
+* **`when event received` (opcode: `whenEventReceived`):**  A trigger block.  This block will execute the script within when an event is received.  It's a crucial part of the communication.
+
+
+**4. Event Information:**
+
+* **`event type` (opcode: `lastEventType`):** Returns the type of the last event received from the channel.  Returns an empty string if no event has been received or if no channel is joined.
+* **`data of event` (opcode: `lastEventData`):** Returns the data associated with the most recently received event.  Returns an empty string if no event has been received or if no channel is joined.
 
 
 ## How to Use in Xcratch
