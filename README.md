@@ -4,8 +4,16 @@ This extension allows [Xcratch](https://xcratch.github.io/) projects to communic
 
 ## ✨ What You Can Do With This Extension
 
-Play [Example Project](https://xcratch.github.io/editor/#https://yokobond.github.io/xcx-browser-channel/projects/example.sb3) to look at what you can do with "Browser Channel" extension. 
-<iframe src="https://xcratch.github.io/editor/player#https://yokobond.github.io/xcx-browser-channel/projects/example.sb3" width="540px" height="460px"></iframe>
+Play example to look at what you can do with "Browser Channel" extension. 
+
+game project: [cat-fight-bc](https://xcratch.github.io/editor/#https://yokobond.github.io/xcx-browser-channel/projects/catfight-bc.sb3)
+<iframe src="https://xcratch.github.io/editor/player#https://yokobond.github.io/xcx-browser-channel/projects/cat-fight-bc.sb3" width="540px" height="460px"></iframe>
+
+controller project: [microbit-controller](https://xcratch.github.io/editor/#https://yokobond.github.io/xcx-browser-channel/projects/microbit-controller.sb3)
+<iframe src="https://xcratch.github.io/editor/player#https://yokobond.github.io/xcx-browser-channel/projects/microbit-controller.sb3" width="540px" height="460px"></iframe>
+
+This projects demonstrates how to use the Browser Channel extension to create a simple two-player game.  The game is a cat fight where each player controls a cat sprite.  One player can control the cat sprite using the arrow keys, while the other player can control the cat sprite using micro:bit connected in the controller project.  The game uses the Browser Channel extension to allow the two players to communicate with each other. The controller project sends messages to the game project to control the cat sprite.  The game project listens for messages from the controller project and updates the cat sprite accordingly.
+
 
 ## Block Functionality Overview:
 
