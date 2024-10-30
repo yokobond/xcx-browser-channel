@@ -216,7 +216,7 @@ class ExtensionBlocks {
                     blockType: BlockType.COMMAND,
                     text: formatMessage({
                         id: 'xcxBrowserChannel.sendEvent',
-                        default: 'send event [TYPE] with value [DATA]'
+                        default: 'send event [TYPE] with [DATA]'
                     }),
                     arguments: {
                         TYPE: {

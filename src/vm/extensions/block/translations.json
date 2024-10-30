@@ -10,7 +10,7 @@
     "xcxBrowserChannel.setValue": "set value of [KEY] to [VALUE]",
     "xcxBrowserChannel.setValue.defaultKey": "key",
     "xcxBrowserChannel.setValue.defaultValue": "value",
-    "xcxBrowserChannel.sendEvent": "broadcast event [TYPE] with [DATA]",
+    "xcxBrowserChannel.sendEvent": "send event [TYPE] with [DATA]",
 		"xcxBrowserChannel.sendEvent.defaultEvent": "type",
 		"xcxBrowserChannel.sendEvent.defaultData": "data",
 		"xcxBrowserChannel.whenEventReceived": "when event received",
