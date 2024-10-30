@@ -342,8 +342,13 @@ class ExtensionBlocks {
         if (!this.channelSession) {
             return 'no channel joined';
         }
-        this.channelSession.setValue(key, value);
-        return `${key} = ${value}`;
+        try {
+            this.channelSession.setValue(key, value);
+        } catch (error) {
+            return error.message;
+        }
+        // resolve after a delay to process another message when this block is used in a loop.
+        return Promise.resolve(`set ${key} = ${value}`);
     }
 
     /**
