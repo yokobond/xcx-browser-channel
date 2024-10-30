@@ -1275,7 +1275,7 @@ var en = {
 	"xcxBrowserChannel.setValue": "set value of [KEY] to [VALUE]",
 	"xcxBrowserChannel.setValue.defaultKey": "key",
 	"xcxBrowserChannel.setValue.defaultValue": "value",
-	"xcxBrowserChannel.sendEvent": "broadcast event [TYPE] with [DATA]",
+	"xcxBrowserChannel.sendEvent": "send event [TYPE] with [DATA]",
 	"xcxBrowserChannel.sendEvent.defaultEvent": "type",
 	"xcxBrowserChannel.sendEvent.defaultData": "data",
 	"xcxBrowserChannel.whenEventReceived": "when event received",
@@ -1382,28 +1382,32 @@ var BrowserChannelSession = /*#__PURE__*/function () {
       this.channel.close();
       this.channel = null;
     }
+  }, {
+    key: "processMessage",
+    value: function processMessage(message) {
+      switch (message.type) {
+        case 'SET_VALUE':
+          this.values[message.key] = message.value;
+          break;
+        case 'EVENT':
+          this.lastEvent = message.data;
+          this.notifyBroadcastEventListeners(this.lastEvent);
+          break;
+        default:
+          console.error("Unknown message type:".concat(message.type));
+          break;
+      }
+    }
 
     /**
      * Called when a message is received
-     * @param {object} data - The message data
+     * @param {object} message - The message data
      */
   }, {
     key: "onMessage",
-    value: function onMessage(data) {
+    value: function onMessage(message) {
       try {
-        var message = data;
-        switch (message.type) {
-          case 'SET_VALUE':
-            this.values[message.key] = message.value;
-            break;
-          case 'EVENT':
-            this.lastEvent = message.data;
-            this.notifyBroadcastEventListeners(this.lastEvent);
-            break;
-          default:
-            console.error("Unknown message type:".concat(message.type));
-            break;
-        }
+        this.processMessage(message);
       } catch (err) {
         console.error(err);
       }
@@ -1470,7 +1474,7 @@ var BrowserChannelSession = /*#__PURE__*/function () {
         return;
       }
       this.channel.postMessage(message);
-      this.onMessage(message);
+      this.processMessage(message);
     }
 
     /**
@@ -1504,7 +1508,7 @@ var BrowserChannelSession = /*#__PURE__*/function () {
         return;
       }
       this.channel.postMessage(message);
-      this.onMessage(message);
+      this.processMessage(message);
     }
   }]);
 }();
@@ -1667,7 +1671,7 @@ var ExtensionBlocks = /*#__PURE__*/function () {
           blockType: BlockType$1.COMMAND,
           text: formatMessage({
             id: 'xcxBrowserChannel.sendEvent',
-            default: 'send event [TYPE] with value [DATA]'
+            default: 'send event [TYPE] with [DATA]'
           }),
           arguments: {
             TYPE: {
@@ -1797,8 +1801,13 @@ var ExtensionBlocks = /*#__PURE__*/function () {
       if (!this.channelSession) {
         return 'no channel joined';
       }
-      this.channelSession.setValue(key, value);
-      return "".concat(key, " = ").concat(value);
+      try {
+        this.channelSession.setValue(key, value);
+      } catch (error) {
+        return error.message;
+      }
+      // resolve after a delay to process another message when this block is used in a loop.
+      return Promise.resolve("set ".concat(key, " = ").concat(value));
     }
 
     /**
@@ -1855,7 +1864,11 @@ var ExtensionBlocks = /*#__PURE__*/function () {
       if (!this.channelSession) {
         return Promise.resolve('no channel joined');
       }
-      this.channelSession.broadcastEvent(type, data);
+      try {
+        this.channelSession.broadcastEvent(type, data);
+      } catch (error) {
+        return Promise.resolve(error.message);
+      }
       // resolve after a delay for the broadcast event to be received.
       return Promise.resolve("sent event: ".concat(type, " data: ").concat(data));
     }

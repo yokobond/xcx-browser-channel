@@ -397,7 +397,11 @@ class ExtensionBlocks {
         if (!this.channelSession) {
             return Promise.resolve('no channel joined');
         }
-        this.channelSession.broadcastEvent(type, data);
+        try {
+            this.channelSession.broadcastEvent(type, data);
+        } catch (error) {
+            return Promise.resolve(error.message);
+        }
         // resolve after a delay for the broadcast event to be received.
         return Promise.resolve(`sent event: ${type} data: ${data}`);
     }

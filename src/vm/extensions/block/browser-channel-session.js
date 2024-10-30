@@ -54,25 +54,28 @@ export class BrowserChannelSession {
         this.channel = null;
     }
 
+    processMessage (message) {
+        switch (message.type) {
+        case 'SET_VALUE':
+            this.values[message.key] = message.value;
+            break;
+        case 'EVENT':
+            this.lastEvent = message.data;
+            this.notifyBroadcastEventListeners(this.lastEvent);
+            break;
+        default:
+            console.error(`Unknown message type:${message.type}`);
+            break;
+        }
+    }
+
     /**
      * Called when a message is received
-     * @param {object} data - The message data
+     * @param {object} message - The message data
      */
-    onMessage (data) {
+    onMessage (message) {
         try {
-            const message = data;
-            switch (message.type) {
-            case 'SET_VALUE':
-                this.values[message.key] = message.value;
-                break;
-            case 'EVENT':
-                this.lastEvent = message.data;
-                this.notifyBroadcastEventListeners(this.lastEvent);
-                break;
-            default:
-                console.error(`Unknown message type:${message.type}`);
-                break;
-            }
+            this.processMessage(message);
         } catch (err) {
             console.error(err);
         }
@@ -127,7 +130,7 @@ export class BrowserChannelSession {
             return;
         }
         this.channel.postMessage(message);
-        this.onMessage(message);
+        this.processMessage(message);
     }
 
     /**
@@ -157,6 +160,6 @@ export class BrowserChannelSession {
             return;
         }
         this.channel.postMessage(message);
-        this.onMessage(message);
+        this.processMessage(message);
     }
 }
