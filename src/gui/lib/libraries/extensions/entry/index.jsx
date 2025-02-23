@@ -29,11 +29,12 @@ const entry = {
     insetIconURL: insetIconURL,
     get description () {
         return formatMessage({
-            defaultMessage: 'an extension for Xcratch',
-            description: 'Description for this extension',
+            defaultMessage: 'Connect projects through browser-based channels to share data and events',
+            description: 'Communicate between browser screens on the same PC',
             id: 'xcxBrowserChannel.entry.description'
         });
     },
+    tags: ['network', 'communication', 'web'],
     featured: true,
     disabled: false,
     bluetoothRequired: false,

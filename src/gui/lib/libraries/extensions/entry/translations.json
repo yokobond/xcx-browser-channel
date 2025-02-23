@@ -1,14 +1,14 @@
 {
   "en": {
     "xcxBrowserChannel.entry.name": "Browser Channel",
-    "xcxBrowserChannel.entry.description": "Description of this extension"
+    "xcxBrowserChannel.entry.description": "Communicate between browser screens on the same PC"
   },
   "ja": {
-    "xcxBrowserChannel.entry.name": "Browser Channel",
-    "xcxBrowserChannel.entry.description": "拡張機能の説明"
+    "xcxBrowserChannel.entry.name": "ブラウザチャンネル",
+    "xcxBrowserChannel.entry.description": "同じPC上のブラウザ画面の間で通信します"
   },
   "ja-Hira": {
-    "xcxBrowserChannel.entry.name": "Browser Channel",
-    "xcxBrowserChannel.entry.description": "かくちょうきのうのせつめい"
+    "xcxBrowserChannel.entry.name": "ブラウザチャンネル",
+    "xcxBrowserChannel.entry.description": "おなじ PC じょう の ブラウザがめん の あいだ で つうしん します"
   }
 }
